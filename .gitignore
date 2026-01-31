@@ -212,5 +212,5 @@ __marimo__/
 # ignore files
 .gitignore
 .dockerignore
-.
+.gitignore
 sounds/
