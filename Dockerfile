@@ -13,6 +13,4 @@ RUN python -m venv /opt/venv \
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-#COPY . .
-
 CMD ["python", "bot.py"]
