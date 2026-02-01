@@ -344,6 +344,8 @@ if not TOKEN:
     raise RuntimeError(
         "DISCORD_TOKEN fehlt. Prüfe deine .env oder Environment-Variablen."
     )
-    raise RuntimeError("DISCORD_TOKEN fehlt. Prüfe deine .env oder Environment-Variablen.")
+    raise RuntimeError(
+        "DISCORD_TOKEN fehlt. Prüfe deine .env oder Environment-Variablen."
+    )
 
 bot.run(TOKEN)
