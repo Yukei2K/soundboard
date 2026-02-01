@@ -2,8 +2,10 @@
 
 o joins/leaves voicechat by itself
 
-o opens soundboard by itself in the voicechannel chat
+o sends / removes soundboard by itself in voicechannel chat
 
-o plays join/leave sound for specific users
+o plays join/leave sound for defined users
 
-o plays join/leave sound in general
+o plays join/leave sound
+
+o limited to joining defined voice channel
