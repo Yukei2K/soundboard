@@ -106,6 +106,7 @@ def humans_in_channel(channel: discord.VoiceChannel) -> int:
 
 async def play_file_in_voice(vc: discord.VoiceClient, file_path: Path):
     global _last_play
+
     if not file_path.exists():
         return
 
@@ -117,9 +118,14 @@ async def play_file_in_voice(vc: discord.VoiceClient, file_path: Path):
     if vc.is_playing():
         vc.stop()
 
-    source = discord.FFmpegPCMAudio(str(file_path), options=f'-vn -af "{AUDIO_FILTER}"')
+    source = discord.FFmpegPCMAudio(
+        str(file_path),
+        before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+        options=f'-vn -af "{AUDIO_FILTER}"'
+    )
 
-    vc.play(source)
+    vc.play(source, after=lambda e: source.cleanup())
+
 
 
 async def play_with_delay(vc: discord.VoiceClient, file_path: Path, delay: float):
