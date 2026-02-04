@@ -13,14 +13,13 @@ load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-GUILD_ID = os.getenv("GUILD_ID")  # optional
-
 SOUNDS_DIR = Path(__file__).with_name("sounds")
 
 JOIN_FILE = os.getenv("JOIN_FILE", "join.mp3")
 LEAVE_FILE = os.getenv("LEAVE_FILE", "leave.mp3")
+
 TARGET_VOICE_CHANNEL_ID = int(
-    os.getenv("TARGET_VOICE_CHANNEL_ID", "950586930725281886")
+    os.getenv("TARGET_VOICE_CHANNEL_ID", "950886798748442675")
 )
 
 _last_sounds_message: discord.Message | None = None
