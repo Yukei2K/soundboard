@@ -17,6 +17,8 @@ if TOKEN is None or VOICE_CHANNEL_ID_STR is None:
 
 VOICE_CHANNEL_ID = int(VOICE_CHANNEL_ID_STR)
 
+LOUDNORM_I = os.getenv("LOUDNORM_I", "-45")
+
 # ---------- Config ----------
 SOUNDS_DIR = "sounds"
 SOUNDS_PER_PAGE = 10
@@ -55,7 +57,7 @@ async def play_sound(vc: discord.VoiceClient, sound_file: str):
     # Use FFmpeg's loudnorm filter to normalize the audio dynamically
     audio_source = discord.FFmpegPCMAudio(
         sound_file, 
-        options="-af loudnorm=I=-45:LRA=11:TP=-1.5"
+        options=f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
     )
     vc.play(audio_source)
     
