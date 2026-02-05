@@ -46,12 +46,19 @@ def list_sounds():
     return [f for f in all_files if not (f.endswith("_join.mp3") or f.endswith("_leave.mp3"))]
 
 async def play_sound(vc: discord.VoiceClient, sound_file: str):
-    """Play an MP3 file in the connected voice channel."""
+    """Play an MP3 file in the connected voice channel with real-time loudness normalization."""
     if not vc.is_connected():
         return
     if vc.is_playing():
         vc.stop()
-    vc.play(discord.FFmpegPCMAudio(sound_file))
+
+    # Use FFmpeg's loudnorm filter to normalize the audio dynamically
+    audio_source = discord.FFmpegPCMAudio(
+        sound_file, 
+        options="-af loudnorm=I=-16:LRA=11:TP=-1.5"
+    )
+    vc.play(audio_source)
+    
     while vc.is_playing():
         await asyncio.sleep(0.1)
 
