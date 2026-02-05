@@ -76,13 +76,13 @@ class SoundboardView(discord.ui.View):
             async def callback(interaction: discord.Interaction, sound=sound):
                 if not self.vc or not self.vc.is_connected():
                     await interaction.response.send_message(
-                        "❌ Bot is not connected to voice.",
+                        "❌ Bot ist nicht mit einem Voice Channel verbunden.",
                         ephemeral=True
                     )
                     return
                 if not interaction.user.voice or interaction.user.voice.channel != self.vc.channel:
                     await interaction.response.send_message(
-                        "🔊 You must be in the voice channel.",
+                        "🔊 Du musst in einem Voice Channel sein.",
                         ephemeral=True
                     )
                     return
@@ -114,15 +114,12 @@ class SoundboardView(discord.ui.View):
     async def prev_page(self, interaction: discord.Interaction):
         self.page -= 1
         self.build()
-        await interaction.response.edit_message(content=self.title(), view=self)
+        await interaction.response.edit_message(content=None, view=self)
 
     async def next_page(self, interaction: discord.Interaction):
         self.page += 1
         self.build()
-        await interaction.response.edit_message(content=self.title(), view=self)
-
-    def title(self):
-        return f"🎵 **Sounds (Page {self.page + 1}/{self.max_pages}) – click to play:**"
+        await interaction.response.edit_message(content=None, view=self)
 
 # ---------- Events ----------
 
@@ -155,8 +152,9 @@ async def on_voice_state_update(member, before, after):
                         await soundboard_message.delete()
                 except:
                     pass
-                # Send initial soundboard and track the message
+                # Send initial soundboard and track the message (no text)
                 soundboard_message = await text_channel.send(
+                    content=None,
                     view=SoundboardView(voice_client, sounds)
                 )
 
@@ -214,8 +212,9 @@ async def on_message(message: discord.Message):
     except:
         pass
 
-    # Send new message with the soundboard view
+    # Send new message with the soundboard view (no text)
     soundboard_message = await message.channel.send(
+        content=None,
         view=SoundboardView(voice_client, sounds)
     )
 
