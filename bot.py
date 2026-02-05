@@ -38,10 +38,12 @@ def get_sound_file(user_id: int, action: str):
     return os.path.join(SOUNDS_DIR, f"default_{action}.wav")
 
 def list_sounds():
-    """Return all WAV files in the sounds directory."""
+    """Return all WAV files in the sounds directory, excluding _join and _leave files."""
     if not os.path.exists(SOUNDS_DIR):
         return []
-    return sorted(f for f in os.listdir(SOUNDS_DIR) if f.lower().endswith(".wav"))
+    all_files = sorted(f for f in os.listdir(SOUNDS_DIR) if f.lower().endswith(".wav"))
+    # Exclude join/leave files
+    return [f for f in all_files if not (f.endswith("_join.wav") or f.endswith("_leave.wav"))]
 
 async def play_sound(vc: discord.VoiceClient, sound_file: str):
     """Play a WAV file in the connected voice channel."""
