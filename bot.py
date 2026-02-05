@@ -19,7 +19,7 @@ VOICE_CHANNEL_ID = int(VOICE_CHANNEL_ID_STR)
 
 # ---------- Config ----------
 SOUNDS_DIR = "sounds"
-SOUNDS_PER_PAGE = 4
+SOUNDS_PER_PAGE = 8
 
 # ---------- Intents ----------
 intents = discord.Intents.all()
