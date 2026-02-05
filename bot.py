@@ -10,12 +10,8 @@ env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 TOKEN = os.getenv("DISCORD_TOKEN")
-VOICE_CHANNEL_ID_STR = os.getenv("VOICE_CHANNEL_ID", "950886798748442675")
 
-if TOKEN is None or VOICE_CHANNEL_ID_STR is None:
-    raise ValueError("DISCORD_TOKEN or VOICE_CHANNEL_ID not found in .env!")
-
-VOICE_CHANNEL_ID = int(VOICE_CHANNEL_ID_STR)
+VOICE_CHANNEL_ID = int(os.getenv("VOICE_CHANNEL_ID", "950886798748442675"))
 
 LOUDNORM_I = os.getenv("VOLUME", "-45")
 
