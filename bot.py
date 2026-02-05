@@ -98,13 +98,13 @@ class SoundboardView(discord.ui.View):
             label="⏮",
             style=discord.ButtonStyle.primary,
             disabled=self.page == 0,
-            row=1
+            row=2  # Changed from 1 to 2 for a new row
         )
         next_btn = discord.ui.Button(
             label="⏭",
             style=discord.ButtonStyle.primary,
             disabled=self.page >= self.max_pages - 1,
-            row=1
+            row=2  # Changed from 1 to 2 for a new row
         )
         prev_btn.callback = self.prev_page
         next_btn.callback = self.next_page
