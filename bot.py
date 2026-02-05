@@ -55,7 +55,7 @@ async def play_sound(vc: discord.VoiceClient, sound_file: str):
     # Use FFmpeg's loudnorm filter to normalize the audio dynamically
     audio_source = discord.FFmpegPCMAudio(
         sound_file, 
-        options="-af loudnorm=I=-16:LRA=11:TP=-1.5"
+        options="-af loudnorm=I=-45:LRA=11:TP=-1.5"
     )
     vc.play(audio_source)
     
