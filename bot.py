@@ -31,22 +31,22 @@ soundboard_message: discord.Message | None = None  # Track the last soundboard m
 # ---------- Helper Functions ----------
 
 def get_sound_file(user_id: int, action: str):
-    """Get a WAV file for the user, fallback to default."""
-    user_file = f"{user_id}_{action}.wav"
+    """Get an MP3 file for the user, fallback to default."""
+    user_file = f"{user_id}_{action}.mp3"
     if os.path.exists(os.path.join(SOUNDS_DIR, user_file)):
         return os.path.join(SOUNDS_DIR, user_file)
-    return os.path.join(SOUNDS_DIR, f"default_{action}.wav")
+    return os.path.join(SOUNDS_DIR, f"default_{action}.mp3")
 
 def list_sounds():
-    """Return all WAV files in the sounds directory, excluding _join and _leave files."""
+    """Return all MP3 files in the sounds directory, excluding _join and _leave files."""
     if not os.path.exists(SOUNDS_DIR):
         return []
-    all_files = sorted(f for f in os.listdir(SOUNDS_DIR) if f.lower().endswith(".wav"))
+    all_files = sorted(f for f in os.listdir(SOUNDS_DIR) if f.lower().endswith(".mp3"))
     # Exclude join/leave files
-    return [f for f in all_files if not (f.endswith("_join.wav") or f.endswith("_leave.wav"))]
+    return [f for f in all_files if not (f.endswith("_join.mp3") or f.endswith("_leave.mp3"))]
 
 async def play_sound(vc: discord.VoiceClient, sound_file: str):
-    """Play a WAV file in the connected voice channel."""
+    """Play an MP3 file in the connected voice channel."""
     if not vc.is_connected():
         return
     if vc.is_playing():
