@@ -17,7 +17,7 @@ if TOKEN is None or VOICE_CHANNEL_ID_STR is None:
 
 VOICE_CHANNEL_ID = int(VOICE_CHANNEL_ID_STR)
 
-LOUDNORM_I = os.getenv("LOUDNORM_I", "-45")
+LOUDNORM_I = os.getenv("VOLUME", "-45")
 
 # ---------- Config ----------
 SOUNDS_DIR = "sounds"

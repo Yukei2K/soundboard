@@ -7,3 +7,4 @@ services:
     volumes: 
       - ./sounds:/sounds
       - ./bot.py:/bot.py
+      - ./.env:/.env
