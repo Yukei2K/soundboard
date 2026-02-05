@@ -26,6 +26,7 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 voice_client: discord.VoiceClient | None = None
+soundboard_message: discord.Message | None = None  # Track the last soundboard message
 
 # ---------- Helper Functions ----------
 
@@ -129,7 +130,7 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    global voice_client
+    global voice_client, soundboard_message
     if member.bot:
         return
 
@@ -144,10 +145,16 @@ async def on_voice_state_update(member, before, after):
             voice_client = await voice_channel.connect()
 
             sounds = list_sounds()
-            # Use the same text channel as original code (voice channel ID)
             text_channel = guild.get_channel(VOICE_CHANNEL_ID)
             if text_channel and sounds:
-                await text_channel.send(
+                # Delete old message if exists
+                try:
+                    if soundboard_message:
+                        await soundboard_message.delete()
+                except:
+                    pass
+                # Send initial soundboard and track the message
+                soundboard_message = await text_channel.send(
                     view=SoundboardView(voice_client, sounds)
                 )
 
@@ -168,6 +175,47 @@ async def on_voice_state_update(member, before, after):
         if not non_bot_members and voice_client:
             await voice_client.disconnect()
             voice_client = None
+
+            # Delete the last soundboard message when bot leaves
+            try:
+                if soundboard_message:
+                    await soundboard_message.delete()
+            except:
+                pass
+            soundboard_message = None
+
+# -------- Auto-refresh soundboard when someone sends a message --------
+@bot.event
+async def on_message(message: discord.Message):
+    global soundboard_message, voice_client
+
+    # Ignore bot messages
+    if message.author.bot:
+        return
+
+    # Only respond in the monitored text channel
+    if message.channel.id != VOICE_CHANNEL_ID:
+        return
+
+    # Make sure voice_client is connected
+    if not voice_client or not voice_client.is_connected():
+        return
+
+    sounds = list_sounds()
+    if not sounds:
+        return
+
+    # Delete previous soundboard message if exists
+    try:
+        if soundboard_message:
+            await soundboard_message.delete()
+    except:
+        pass
+
+    # Send new message with the soundboard view
+    soundboard_message = await message.channel.send(
+        view=SoundboardView(voice_client, sounds)
+    )
 
 # ---------- Run the bot ----------
 bot.run(TOKEN)
