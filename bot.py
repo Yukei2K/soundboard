@@ -21,7 +21,9 @@ USERS_DIR = os.path.join(SOUNDS_DIR, "users")
 SOUNDS_PER_PAGE = 10
 
 # ---------- Intents ----------
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.members = True        # REQUIRED for voice_state_update
+intents.voice_states = True   # Explicit, even if default
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 voice_client: discord.VoiceClient | None = None
