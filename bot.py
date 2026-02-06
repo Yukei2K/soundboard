@@ -12,6 +12,7 @@ load_dotenv(dotenv_path=env_path)
 TOKEN = os.getenv("DISCORD_TOKEN")
 VOICE_CHANNEL_ID = int(os.getenv("VOICE_CHANNEL_ID", "950886798748442675"))
 LOUDNORM_I = os.getenv("VOLUME", "-45")
+JOIN_DELAY = float(os.getenv("JOIN_DELAY", "0.7"))  # ⏱ join sound delay
 
 # ---------- Paths ----------
 SOUNDS_DIR = "sounds"
@@ -200,6 +201,7 @@ async def on_voice_state_update(member, before, after):
 
         join_sound = get_join_leave_sound(member.id, "join")
         if join_sound:
+            await asyncio.sleep(JOIN_DELAY)  # ⏱ delay before playing
             await play_sound(voice_client, join_sound)
 
     # ----- LEAVE -----
