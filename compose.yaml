@@ -5,6 +5,5 @@ services:
       - .env
     restart: unless-stopped
     volumes: 
-      - ./sounds:/sounds
+      - /home/user/sounds:/sounds
       - ./bot.py:/bot.py
-      - ./.env:/.env
