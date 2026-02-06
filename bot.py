@@ -12,7 +12,7 @@ load_dotenv(dotenv_path=env_path)
 TOKEN = os.getenv("DISCORD_TOKEN")
 VOICE_CHANNEL_ID = int(os.getenv("VOICE_CHANNEL_ID", "950886798748442675"))
 LOUDNORM_I = os.getenv("VOLUME", "-45")
-JOIN_DELAY = float(os.getenv("JOIN_DELAY", "0.7"))  # ⏱ join sound delay
+JOIN_DELAY = float(os.getenv("DELAY", "0.7"))  # ⏱ join sound delay
 
 # ---------- Paths ----------
 SOUNDS_DIR = "sounds"
