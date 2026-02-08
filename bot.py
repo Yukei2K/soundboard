@@ -77,8 +77,10 @@ def get_join_leave_sound(user_id: int, action: str) -> str | None:
 
     return None
 
-async def play_sound(vc: discord.VoiceClient, sound_file: str):
-    """Play a sound with loudness normalization."""
+# ---------- Audio Playback ----------
+
+async def play_soundboard_sound(vc: discord.VoiceClient, sound_file: str):
+    """Soundboard sounds: limited to 5 seconds."""
     if not vc or not vc.is_connected():
         return
 
@@ -88,9 +90,26 @@ async def play_sound(vc: discord.VoiceClient, sound_file: str):
     source = discord.FFmpegPCMAudio(
         sound_file,
         options=(
-            f"-t 5 "  # ⏱ limit playback to 5 seconds
+            f"-t 5 "
             f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
         )
+    )
+    vc.play(source)
+
+    while vc.is_playing():
+        await asyncio.sleep(0.1)
+
+async def play_event_sound(vc: discord.VoiceClient, sound_file: str):
+    """Join / leave sounds: full length."""
+    if not vc or not vc.is_connected():
+        return
+
+    if vc.is_playing():
+        vc.stop()
+
+    source = discord.FFmpegPCMAudio(
+        sound_file,
+        options=f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
     )
     vc.play(source)
 
@@ -132,7 +151,10 @@ class SoundboardView(discord.ui.View):
                     return
 
                 await interaction.response.defer()
-                await play_sound(self.vc, os.path.join(SOUNDBOARD_DIR, sound))
+                await play_soundboard_sound(
+                    self.vc,
+                    os.path.join(SOUNDBOARD_DIR, sound)
+                )
 
             button = discord.ui.Button(label=label, style=discord.ButtonStyle.secondary)
             button.callback = callback
@@ -206,14 +228,14 @@ async def on_voice_state_update(member, before, after):
 
         join_sound = get_join_leave_sound(member.id, "join")
         if join_sound:
-            await asyncio.sleep(JOIN_DELAY)  # ⏱ delay before playing
-            await play_sound(voice_client, join_sound)
+            await asyncio.sleep(JOIN_DELAY)
+            await play_event_sound(voice_client, join_sound)
 
     # ----- LEAVE -----
     if before.channel == voice_channel and after.channel != voice_channel:
         leave_sound = get_join_leave_sound(member.id, "leave")
         if leave_sound and voice_client:
-            await play_sound(voice_client, leave_sound)
+            await play_event_sound(voice_client, leave_sound)
 
         non_bot_members = [m for m in voice_channel.members if not m.bot]
         if not non_bot_members and voice_client:
