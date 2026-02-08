@@ -22,8 +22,8 @@ SOUNDS_PER_PAGE = 10
 
 # ---------- Intents ----------
 intents = discord.Intents.default()
-intents.members = True        # REQUIRED for voice_state_update
-intents.voice_states = True   # Explicit, even if default
+intents.members = True
+intents.voice_states = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 voice_client: discord.VoiceClient | None = None
@@ -32,7 +32,6 @@ soundboard_message: discord.Message | None = None
 # ---------- Helper Functions ----------
 
 def list_sounds():
-    """Return all soundboard MP3 files."""
     if not os.path.exists(SOUNDBOARD_DIR):
         return []
 
@@ -42,7 +41,6 @@ def list_sounds():
     )
 
 def get_user_sound_folder(user_id: int) -> str | None:
-    """Find the user folder matching a Discord user ID."""
     if not os.path.exists(USERS_DIR):
         return None
 
@@ -64,7 +62,6 @@ def get_user_sound_folder(user_id: int) -> str | None:
     return None
 
 def get_join_leave_sound(user_id: int, action: str) -> str | None:
-    """Get custom join/leave sound or fallback to default."""
     user_folder = get_user_sound_folder(user_id)
     if user_folder:
         custom = os.path.join(user_folder, f"{action}.mp3")
