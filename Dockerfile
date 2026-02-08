@@ -7,12 +7,12 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
-WORKDIR /app
+WORKDIR /
 
 # Copy your bot.py into the image
-COPY bot.py /app/bot.py
+COPY bot.py .
 
-COPY requirements.txt /app/requirements.txt
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
