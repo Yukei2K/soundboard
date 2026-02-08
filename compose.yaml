@@ -6,4 +6,3 @@ services:
       - .env
     volumes: 
       - /home/user/sounds:/sounds:Z
-      - ./bot.py:/bot.py

@@ -14,10 +14,9 @@ COPY bot.py /app/bot.py
 
 COPY requirements.txt /app/requirements.txt
 
-RUN python -m venv /opt/venv \
-    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Set the default command
-CMD ["python", "/app/bot.py"]
+CMD ["python", "bot.py"]
