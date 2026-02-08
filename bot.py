@@ -12,7 +12,12 @@ load_dotenv(dotenv_path=env_path)
 TOKEN = os.getenv("DISCORD_TOKEN")
 VOICE_CHANNEL_ID = int(os.getenv("VOICE_CHANNEL", "950886798748442675"))
 LOUDNORM_I = os.getenv("VOLUME", "-45")
-JOIN_DELAY = float(os.getenv("DELAY", "0.7"))  # ⏱ join sound delay
+JOIN_DELAY = float(os.getenv("DELAY", "0.7"))
+
+# ---------- Duration config ----------
+SOUNDBOARD_DURATION = float(os.getenv("SOUNDBOARD_SECONDS", "5"))
+JOIN_SOUND_DURATION = float(os.getenv("JOIN_SOUND_SECONDS", "0"))
+LEAVE_SOUND_DURATION = float(os.getenv("LEAVE_SOUND_SECONDS", "0"))
 
 # ---------- Paths ----------
 SOUNDS_DIR = "sounds"
@@ -76,8 +81,13 @@ def get_join_leave_sound(user_id: int, action: str) -> str | None:
 
 # ---------- Audio Playback ----------
 
-async def play_soundboard_sound(vc: discord.VoiceClient, sound_file: str):
-    """Soundboard sounds: limited to 5 seconds."""
+def build_ffmpeg_options(duration: float | None):
+    opts = f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
+    if duration and duration > 0:
+        opts = f"-t {duration} " + opts
+    return opts
+
+async def play_sound(vc: discord.VoiceClient, sound_file: str, duration: float):
     if not vc or not vc.is_connected():
         return
 
@@ -86,27 +96,7 @@ async def play_soundboard_sound(vc: discord.VoiceClient, sound_file: str):
 
     source = discord.FFmpegPCMAudio(
         sound_file,
-        options=(
-            f"-t 5 "
-            f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
-        )
-    )
-    vc.play(source)
-
-    while vc.is_playing():
-        await asyncio.sleep(0.1)
-
-async def play_event_sound(vc: discord.VoiceClient, sound_file: str):
-    """Join / leave sounds: full length."""
-    if not vc or not vc.is_connected():
-        return
-
-    if vc.is_playing():
-        vc.stop()
-
-    source = discord.FFmpegPCMAudio(
-        sound_file,
-        options=f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
+        options=build_ffmpeg_options(duration)
     )
     vc.play(source)
 
@@ -148,27 +138,18 @@ class SoundboardView(discord.ui.View):
                     return
 
                 await interaction.response.defer()
-                await play_soundboard_sound(
+                await play_sound(
                     self.vc,
-                    os.path.join(SOUNDBOARD_DIR, sound)
+                    os.path.join(SOUNDBOARD_DIR, sound),
+                    SOUNDBOARD_DURATION
                 )
 
             button = discord.ui.Button(label=label, style=discord.ButtonStyle.secondary)
             button.callback = callback
             self.add_item(button)
 
-        prev_btn = discord.ui.Button(
-            label="⏮",
-            style=discord.ButtonStyle.primary,
-            disabled=self.page == 0,
-            row=2
-        )
-        next_btn = discord.ui.Button(
-            label="⏭",
-            style=discord.ButtonStyle.primary,
-            disabled=self.page >= self.max_pages - 1,
-            row=2
-        )
+        prev_btn = discord.ui.Button(label="⏮", style=discord.ButtonStyle.primary, disabled=self.page == 0, row=2)
+        next_btn = discord.ui.Button(label="⏭", style=discord.ButtonStyle.primary, disabled=self.page >= self.max_pages - 1, row=2)
 
         prev_btn.callback = self.prev_page
         next_btn.callback = self.next_page
@@ -204,7 +185,7 @@ async def on_voice_state_update(member, before, after):
     if not voice_channel:
         return
 
-    # ----- JOIN -----
+    # JOIN
     if after.channel == voice_channel and before.channel != voice_channel:
         if not voice_client or not voice_client.is_connected():
             voice_client = await voice_channel.connect()
@@ -213,11 +194,11 @@ async def on_voice_state_update(member, before, after):
             text_channel = guild.get_channel(VOICE_CHANNEL_ID)
 
             if text_channel and sounds:
-                try:
-                    if soundboard_message:
+                if soundboard_message:
+                    try:
                         await soundboard_message.delete()
-                except:
-                    pass
+                    except:
+                        pass
 
                 soundboard_message = await text_channel.send(
                     view=SoundboardView(voice_client, sounds)
@@ -226,26 +207,24 @@ async def on_voice_state_update(member, before, after):
         join_sound = get_join_leave_sound(member.id, "join")
         if join_sound:
             await asyncio.sleep(JOIN_DELAY)
-            await play_event_sound(voice_client, join_sound)
+            await play_sound(voice_client, join_sound, JOIN_SOUND_DURATION)
 
-    # ----- LEAVE -----
+    # LEAVE
     if before.channel == voice_channel and after.channel != voice_channel:
         leave_sound = get_join_leave_sound(member.id, "leave")
         if leave_sound and voice_client:
-            await play_event_sound(voice_client, leave_sound)
+            await play_sound(voice_client, leave_sound, LEAVE_SOUND_DURATION)
 
-        non_bot_members = [m for m in voice_channel.members if not m.bot]
-        if not non_bot_members and voice_client:
+        if not [m for m in voice_channel.members if not m.bot] and voice_client:
             await voice_client.disconnect()
             voice_client = None
 
-            try:
-                if soundboard_message:
+            if soundboard_message:
+                try:
                     await soundboard_message.delete()
-            except:
-                pass
-
-            soundboard_message = None
+                except:
+                    pass
+                soundboard_message = None
 
 # ---------- Auto-refresh soundboard ----------
 
@@ -266,11 +245,11 @@ async def on_message(message: discord.Message):
     if not sounds:
         return
 
-    try:
-        if soundboard_message:
+    if soundboard_message:
+        try:
             await soundboard_message.delete()
-    except:
-        pass
+        except:
+            pass
 
     soundboard_message = await message.channel.send(
         view=SoundboardView(voice_client, sounds)
