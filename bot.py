@@ -87,7 +87,10 @@ async def play_sound(vc: discord.VoiceClient, sound_file: str):
 
     source = discord.FFmpegPCMAudio(
         sound_file,
-        options=f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
+        options=(
+            f"-t 5 "  # ⏱ limit playback to 5 seconds
+            f"-af loudnorm=I={LOUDNORM_I}:LRA=11:TP=-2.0"
+        )
     )
     vc.play(source)
 
