@@ -1,9 +1,9 @@
 services:
-  bot:
-    build: .
+  soundboard:
+    image: localhost/soundboard
+    restart: unless-stopped
     env_file:
       - .env
-    restart: unless-stopped
     volumes: 
       - /home/user/sounds:/sounds:Z
       - ./bot.py:/bot.py
