@@ -148,13 +148,20 @@ class SoundboardView(discord.ui.View):
             button.callback = callback
             self.add_item(button)
 
-        prev_btn = discord.ui.Button(label="⏮", style=discord.ButtonStyle.primary, disabled=self.page == 0, row=2)
-        next_btn = discord.ui.Button(label="⏭", style=discord.ButtonStyle.primary, disabled=self.page >= self.max_pages - 1, row=2)
+        prev_btn = discord.ui.Button(label="⏮", style=discord.ButtonStyle.red, disabled=self.page == 0, row=2)
+        next_btn = discord.ui.Button(label="⏭", style=discord.ButtonStyle.blurple, disabled=self.page >= self.max_pages - 1, row=2)
 
         prev_btn.callback = self.prev_page
         next_btn.callback = self.next_page
 
+        # Refresh button (just resend the message)
+        refresh_btn = discord.ui.Button(label="⟳", style=discord.ButtonStyle.success, row=2)
+        refresh_btn.callback = self.refresh_page
+
         self.add_item(prev_btn)
+
+        self.add_item(refresh_btn)
+
         self.add_item(next_btn)
 
     async def prev_page(self, interaction: discord.Interaction):
@@ -166,6 +173,24 @@ class SoundboardView(discord.ui.View):
         self.page += 1
         self.build()
         await interaction.response.edit_message(view=self)
+
+    async def refresh_page(self, interaction: discord.Interaction):
+        """ Just resend the current soundboard message without extra info """
+        sounds = list_sounds()
+
+        if not sounds:
+            return  # No sounds, do nothing (or could delete message)
+
+        # Rebuild the message view with the updated list of sounds
+        self.sounds = sounds
+        self.page = 0  # Optionally reset the page to the first page
+        self.build()
+
+        # Resend the message (re-send the updated soundboard view)
+        try:
+            await interaction.response.edit_message(view=self)
+        except Exception as e:
+            print(f"Error while refreshing message: {e}")
 
 # ---------- Events ----------
 
