@@ -201,7 +201,8 @@ async def on_voice_state_update(member, before, after):
                         pass
 
                 soundboard_message = await text_channel.send(
-                    view=SoundboardView(voice_client, sounds)
+                    view=SoundboardView(voice_client, sounds),
+                    silent=True
                 )
 
         join_sound = get_join_leave_sound(member.id, "join")
@@ -252,7 +253,8 @@ async def on_message(message: discord.Message):
             pass
 
     soundboard_message = await message.channel.send(
-        view=SoundboardView(voice_client, sounds)
+        view=SoundboardView(voice_client, sounds),        
+        silent=True  # This makes the message silent
     )
 
 # ---------- Run ----------
