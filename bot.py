@@ -148,8 +148,8 @@ class SoundboardView(discord.ui.View):
             button.callback = callback
             self.add_item(button)
 
-        prev_btn = discord.ui.Button(label="⏮", style=discord.ButtonStyle.red, disabled=self.page == 0, row=2)
-        next_btn = discord.ui.Button(label="⏭", style=discord.ButtonStyle.blurple, disabled=self.page >= self.max_pages - 1, row=2)
+        prev_btn = discord.ui.Button(label="◀", style=discord.ButtonStyle.blurple, disabled=self.page == 0, row=2)
+        next_btn = discord.ui.Button(label="▶", style=discord.ButtonStyle.blurple, disabled=self.page >= self.max_pages - 1, row=2)
 
         prev_btn.callback = self.prev_page
         next_btn.callback = self.next_page
